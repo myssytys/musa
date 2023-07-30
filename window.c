@@ -9,6 +9,10 @@
 #include <netdb.h>
 #include <errno.h>
 
+#define PORT 80
+#define SERVER_PORT 80
+#define SERVER_ADDRESS "216.58.210.174"
+
 static void
 activate (GtkApplication* app,
           gpointer        user_data)
@@ -67,6 +71,50 @@ activate (GtkApplication* app,
   gtk_widget_set_visible(window, 1);
 }
 
+void http_get_request() {
+    struct sockaddr_in server_addr;
+    int sockfd;
+    char request[] = "GET / HTTP/1.1\r\nHost: www.example.com\r\nConnection: close\r\n\r\n";
+    char buffer[1024];
+
+    // Create a socket
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0) {
+        printf("Socket creation failed");
+        return;
+    }
+
+    // Set up the server address structure
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(SERVER_PORT);
+    inet_pton(AF_INET, SERVER_ADDRESS, &(server_addr.sin_addr));
+
+    // Connect to the server
+    if (connect(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+        printf("Connection to the server failed");
+        close(sockfd);
+        return;
+    }
+
+    // Send the HTTP request
+    if (send(sockfd, request, strlen(request), 0) < 0) {
+        printf("Send failed");
+        close(sockfd);
+        return;
+    }
+
+    // Receive and print the server's response
+    int bytes_received;
+    while ((bytes_received = recv(sockfd, buffer, sizeof(buffer) - 1, 0)) > 0) {
+        buffer[bytes_received] = '\0';
+        printf("%s", buffer);
+    }
+
+    // Close the socket
+    close(sockfd);
+}
+
 int
 main (int    argc,
       char **argv)
@@ -81,15 +129,35 @@ main (int    argc,
         return -1;
     }
 
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(PORT);
+
+    if (inet_pton(AF_INET, "192.168.198.138", &serv_addr.sin_addr)
+        <= 0) {
+        printf(
+            "\nInvalid address/ Address not supported \n");
+        return -1;
+    }
+
+     /*if ((status
+         = connect(client_fd, (struct sockaddr*)&serv_addr,
+                   sizeof(serv_addr)))
+        < 0) {
+        printf("\nConnection Failed \n");
+        return -1;
+    }^**/
+
+ // http_get_request();
 
   GtkApplication *app;
 
   app = gtk_application_new ("org.gtk.example", G_APPLICATION_DEFAULT_FLAGS);
   g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
+  
+  http_get_request();
   status = g_application_run (G_APPLICATION (app), argc, argv);
-  g_object_unref (app);
 
-  close_socket();
+  g_object_unref (app);
 
   return status;
 }
