@@ -1,10 +1,4 @@
-#include <netinet/in.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <stdbool.h>
+#include "net.h"
 
 #define PORT 8080
 
@@ -24,7 +18,7 @@ if (setsockopt(server_fd, SOL_SOCKET,
 	return 0;
 
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_addr.s_addr = inet_addr("192.168.198.238");
     address.sin_port = htons(PORT);
 
     return 1;
@@ -40,7 +34,7 @@ bool bind_socket() {
     return 1;
 }
 
-bool takecontact() {
+bool take_contact() {
 	if (listen(server_fd, 3) < 0) {
         return 0;
     }
