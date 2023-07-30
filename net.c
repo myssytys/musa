@@ -30,4 +30,26 @@ if (setsockopt(server_fd, SOL_SOCKET,
     return 1;
 }
 
+bool bind_socket() {
+// Forcefully attaching socket to the port 8080
+    if (bind(server_fd, (struct sockaddr*)&address,
+             sizeof(address))
+        < 0) {
+        return 0;
+    }
+    return 1;
+}
+
+bool takecontact() {
+	if (listen(server_fd, 3) < 0) {
+        return 0;
+    }
+    if ((new_socket
+         = accept(server_fd, (struct sockaddr*)&address,
+                  (socklen_t*)&addrlen))
+        < 0) {
+        return 0;
+    }
+return 1;
+}
 
