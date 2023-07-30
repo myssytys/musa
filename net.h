@@ -11,3 +11,4 @@
 bool socket_init();
 bool bind_socket();
 bool take_contact();
+bool close_socket();

@@ -18,7 +18,7 @@ if (setsockopt(server_fd, SOL_SOCKET,
 	return 0;
 
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = inet_addr("192.168.198.238");
+    address.sin_addr.s_addr = inet_addr("192.168.198.138");
     address.sin_port = htons(PORT);
 
     return 1;
@@ -47,3 +47,11 @@ bool take_contact() {
 return 1;
 }
 
+bool close_socket() {
+
+      	close(new_socket);
+    
+	shutdown(server_fd, SHUT_RDWR);
+
+	return 1;
+}

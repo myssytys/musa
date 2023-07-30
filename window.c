@@ -9,6 +9,7 @@
 #include <netdb.h>
 #include <errno.h>
 
+#include "net.h"
 
 static void
 activate (GtkApplication* app,
@@ -77,8 +78,13 @@ main (int    argc,
 
   app = gtk_application_new ("org.gtk.example", G_APPLICATION_DEFAULT_FLAGS);
   g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
+  socket_init();
+  bind_socket();;
   status = g_application_run (G_APPLICATION (app), argc, argv);
+  take_contact();
   g_object_unref (app);
+
+  close_socket();
 
   return status;
 }
