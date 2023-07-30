@@ -9,8 +9,6 @@
 #include <netdb.h>
 #include <errno.h>
 
-#include "net.h"
-
 static void
 activate (GtkApplication* app,
           gpointer        user_data)
@@ -73,15 +71,22 @@ int
 main (int    argc,
       char **argv)
 {
+
+    int status, valread, client_fd;
+    struct sockaddr_in serv_addr;
+    char* hello = "Hello from client";
+    char buffer[1024] = { 0 };
+    if ((client_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        printf("\n Socket creation error \n");
+        return -1;
+    }
+
+
   GtkApplication *app;
-  int status;
 
   app = gtk_application_new ("org.gtk.example", G_APPLICATION_DEFAULT_FLAGS);
   g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
-  socket_init();
-  bind_socket();;
   status = g_application_run (G_APPLICATION (app), argc, argv);
-  take_contact();
   g_object_unref (app);
 
   close_socket();
