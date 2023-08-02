@@ -74,7 +74,39 @@ activate (GtkApplication* app,
   gtk_widget_set_visible(window, 1);
 }
 
-void http_request() {
+static size_t write_callback(void *contents, size_t size, size_t nmemb, char *output) {
+    size_t total_size = size * nmemb;
+    strcat(output, (char *)contents);
+    return total_size;
+}
+
+void http_request(const char *url) {
+	CURL *curl;
+	CURLcode res;
+	char output[4096] = {0};
+	
+	curl = curl_easy_init();
+	if(curl) {
+		curl_easy_setopt(curl, CURLOPT_URL, url);
+
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, output);
+
+curl_version();
+
+		// PERFORM THE HTTPS REQUEST
+		res = curl_easy_perform(curl);
+
+		if(res != CURLE_OK) {
+			printf("curl failed!\n");
+		}
+
+		curl_easy_cleanup(curl);
+
+		printf("%s\n", output);
+	}
+
+
 }
 
 int
@@ -83,7 +115,7 @@ main (int    argc,
 {
 
     int status, valread, client_fd;
-    struct sockaddr_in serv_addr;
+  /*  struct sockaddr_in serv_addr;
     char* hello = "Hello from client";
     char buffer[1024] = { 0 };
     if ((client_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -116,7 +148,7 @@ main (int    argc,
   app = gtk_application_new ("org.gtk.example", G_APPLICATION_DEFAULT_FLAGS);
   g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
   
-  http_request();
+  http_request("www.youtube.com");
   status = g_application_run (G_APPLICATION (app), argc, argv);
 
   g_object_unref (app);
