@@ -9,6 +9,8 @@
 #include <netdb.h>
 #include <errno.h>
 #include <curl/curl.h>
+#include <tidy.h>
+#include <tidybuffio.h>
 
 #define PORT 80
 #define SERVER_PORT 80
@@ -83,16 +85,32 @@ static size_t write_callback(void *contents, size_t size, size_t nmemb, char *ou
 void http_request(const char *url) {
 	CURL *curl;
 	CURLcode res;
-	char output[4096] = {0};
-	
-	curl = curl_easy_init();
-	if(curl) {
-		curl_easy_setopt(curl, CURLOPT_URL, url);
+	char input[10000];
 
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+	TidyBuffer output = {0};
+	TidyBuffer errbuf = {0};
+
+	int rc=1;
+	bool ok;
+
+	TidyDoc tdoc = tidyCreate();
+
+	ok = tidyOptSetBool(tdoc, TidyXhtmlOut, yes); // convert to xhtml
+						     
+       printf("%x", ok);	
+	curl = curl_easy_init();
+	
+
+		curl_easy_setopt(curl, CURLOPT_DEFAULT_PROTOCOL, "https");
+               curl_easy_setopt(curl, CURLOPT_URL, "www.youtube.com");
+
+
+/*		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, output);
 
-curl_version();
+		curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
+
+		curl_easy_setopt(curl, CURLOPT_CA_CACHE_TIMEOUT, 604800L);*/
 
 		// PERFORM THE HTTPS REQUEST
 		res = curl_easy_perform(curl);
@@ -101,10 +119,33 @@ curl_version();
 			printf("curl failed!\n");
 		}
 
+		if(res != CURLE_OK)
+		      fprintf(stderr, "curl_easy_perform() failed: %s\n",
+             		 curl_easy_strerror(res));
+
 		curl_easy_cleanup(curl);
 
-		printf("%s\n", output);
-	}
+		printf("%s\n", input);
+
+		 ok = tidyOptSetBool(tdoc, TidyXhtmlOut, yes); // convert to xhtml
+
+        if(ok)
+                rc = tidySetErrorBuffer(tdoc, &errbuf);
+        if(rc >= 0)
+                rc = tidyParseString(tdoc, input);
+        
+	
+
+	
+	
+	if (rc >= 0)
+                rc = tidyCleanAndRepair( tdoc);
+        if ( rc >= 0)
+                rc = tidyRunDiagnostics( tdoc);
+
+	tidySaveBuffer(tdoc, &output);
+
+	printf("%s", output);	
 
 
 }
@@ -148,7 +189,7 @@ main (int    argc,
   app = gtk_application_new ("org.gtk.example", G_APPLICATION_DEFAULT_FLAGS);
   g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
   
-  http_request("www.youtube.com");
+  http_request("https:\\\\www.youtube.com");
   status = g_application_run (G_APPLICATION (app), argc, argv);
 
   g_object_unref (app);
