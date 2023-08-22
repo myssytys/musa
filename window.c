@@ -9,7 +9,7 @@
 #include <netdb.h>
 #include <errno.h>
 #include <curl/curl.h>
-#include <libxml/HTMLparser.h>
+#include <webkit2/webkit2.h>
 
 struct MemoryStruct {
 	char *memory;
@@ -25,76 +25,54 @@ activate (GtkApplication* app,
   GtkWidget *button;
   GtkWidget *image;
 
-  grid = gtk_grid_new();
-
   window = gtk_application_window_new (app);
   gtk_window_set_title (GTK_WINDOW (window), "Youtube App");
   gtk_window_set_default_size (GTK_WINDOW (window), 1024, 768);
 
-  gtk_grid_set_column_homogeneous(GTK_GRID(grid), TRUE);
-  gtk_grid_set_column_spacing(GTK_GRID(grid), 10);
-  
-  gtk_window_set_child(GTK_WINDOW (window), grid);
- 
-  GtkCssProvider *cssProvider = gtk_css_provider_new();
-  gtk_css_provider_load_from_file(cssProvider, g_file_new_for_path("styles.css"));
+  GtkWidget *mainbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+  gtk_container_add(GTK_CONTAINER(window), mainbox);
 
-  gtk_style_context_add_provider_for_display(gdk_display_get_default(),
-                               GTK_STYLE_PROVIDER(cssProvider),
-                               GTK_STYLE_PROVIDER_PRIORITY_USER);
+  GtkWidget *headerbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+  gtk_box_pack_start(GTK_BOX(headerbox), headerbox, FALSE, FALSE, 0);
+
+  WebKitWebView *webView = WEBKIT_WEB_VIEW(webkit_web_view_new());
+  gtk_box_pack_start(GTK_BOX(mainbox), webView, TRUE, TRUE, 0);
 
 
   button = gtk_button_new_with_label("Spotify");
-//  gtk_widget_set_name(button, "spotify");
-  gtk_widget_set_name(button, "Spotify");
-
   g_signal_connect(button, "clicked", NULL, NULL);
-  gtk_grid_attach(GTK_GRID(grid), button, 3,0,1,1);
+  g_object_set_data(G_OBJECT(button), "url", (gpointer)"https:////spotify.com");
+  gtk_box_pack_start(GTK_BOX(headerbox), button, FALSE, FALSE, 5);
   
-  button = gtk_button_new_with_label("YouTube");
-  gtk_widget_set_name(button, "youtube");
-
+  
+  button = gtk_button_new_with_label("YouTube Music"); 
   g_signal_connect(button, "clicked", NULL, NULL);
-  gtk_grid_attach(GTK_GRID(grid), button, 4,0,1,1);
+ 
 
   button = gtk_button_new_with_label("SoundCloud");
   g_signal_connect(button, "clicked", NULL, NULL);
-  gtk_grid_attach(GTK_GRID(grid), button, 5,0,1,1);
 
   button = gtk_button_new_with_label("MixCloud");
   g_signal_connect(button, "clicked", NULL, NULL);
-  gtk_grid_attach(GTK_GRID(grid), button, 6,0,1,1);
 
   button = gtk_button_new_with_label("Vimeo");
   g_signal_connect(button, "clicked", NULL, NULL);
-  gtk_grid_attach(GTK_GRID(grid), button, 7,0,1,1);
+
 
   button = gtk_button_new_with_label("Deezer");
   g_signal_connect(button, "clicked", NULL, NULL);
-  gtk_grid_attach(GTK_GRID(grid), button, 8,0,1,1);;
+  
 
-  gtk_widget_set_visible(window, 1);
+ // gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(webView));
+
+  webkit_web_view_load_uri(webView, "https:////www.youtube.com");
+
+  
+
+  gtk_widget_show_all(window);
+
+//  gtk_widget_set_visible(window, 1);
 }
-
-void traverse_dom_trees(xmlNode * a_node)
-{
-    xmlNode *cur_node = NULL;
-
-    for (cur_node = a_node; cur_node; cur_node = cur_node->next)
-    {
-        if (cur_node->type == XML_TEXT_NODE)
-        {
-            printf("Node type: Text, content: %s\n", cur_node->content);
-        }
-        else if (cur_node->type == XML_ELEMENT_NODE)
-        {
-            printf("Node type: Element, name: %s\n", cur_node->name);
-        }
-
-        traverse_dom_trees(cur_node->children);
-    }
-}
-
 
 static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
   size_t realsize = size * nmemb;
@@ -116,7 +94,7 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
 
 struct MemoryStruct chunk;
 
-CURLcode http_request() {
+void http_request() {
 	CURL *curl;
 	CURLcode res;
 
@@ -127,7 +105,7 @@ CURLcode http_request() {
 	
 
 		curl_easy_setopt(curl, CURLOPT_DEFAULT_PROTOCOL, "https");
-               curl_easy_setopt(curl, CURLOPT_URL, "open.spotify.com");
+               curl_easy_setopt(curl, CURLOPT_URL, "soundcloud.com");
 
 	       curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
 	       curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
@@ -143,7 +121,6 @@ CURLcode http_request() {
 		      fprintf(stderr, "curl_easy_perform() failed: %s\n",
              		 curl_easy_strerror(res));
 
-		return res;
 		curl_easy_cleanup(curl);
 }
 
@@ -153,28 +130,18 @@ main (int    argc,
 {
 
     int status, valread, client_fd;
-    htmlDocPtr doc;
-    xmlNode *roo_element = NULL;
-    CURLcode res;
 
+//    http_request();
 
-    http_request();
-
-  doc = htmlReadMemory(chunk.memory, chunk.size, "noname.html", NULL, 0);
-  if(doc != NULL) {
-	  xmlFreeDoc(doc);
-  }
 
   GtkApplication *app;
 
   app = gtk_application_new ("org.gtk.example", G_APPLICATION_DEFAULT_FLAGS);
   g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
   
-  printf("%s\n", chunk.memory);
+//  printf("%s\n", chunk.memory);
 
   status = g_application_run (G_APPLICATION (app), argc, argv);
- 
-  // printf("%s\n", res);
 
   g_object_unref (app);
 
