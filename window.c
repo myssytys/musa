@@ -25,7 +25,7 @@ static void button_clicked_callback(GtkWidget *button, gpointer user_data) {
 
 	const gchar *url = user_data;
 
-	webkit_web_view_load_uri(WEBKIT_WEB_VIEW(webView), "https:////spotify.com");
+	webkit_web_view_load_uri(WEBKIT_WEB_VIEW(webView), user_data);
 
 }
 
@@ -54,18 +54,21 @@ activate (GtkApplication* app,
 
 
   button = gtk_button_new_with_label("Spotify");
-  g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), webView);
+  g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), "https:////spotify.com");
   gtk_box_pack_start(GTK_BOX(headerbox), button, FALSE, FALSE, 0);
+  g_object_set_data(G_OBJECT(button), "url", (gpointer)"http:////spotify.com");
   
   
   button = gtk_button_new_with_label("YouTube Music"); 
   g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), "https:////music.youtube.com");
   gtk_box_pack_start(GTK_BOX(headerbox), button, FALSE, FALSE, 0);
+  g_object_set_data(G_OBJECT(button), "url", (gpointer)"https:////music.youtube.com");
  
 
   button = gtk_button_new_with_label("SoundCloud");
   g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), "https:////soundcloud.com");
   gtk_box_pack_start(GTK_BOX(headerbox), button, FALSE, FALSE, 0);
+  g_object_set_data(G_OBJECT(button), "url", (gpointer)"https:////soundcloud.com");
 
 
   button = gtk_button_new_with_label("MixCloud");
@@ -78,7 +81,7 @@ activate (GtkApplication* app,
 
   button = gtk_button_new_with_label("Deezer");
   gtk_box_pack_start(GTK_BOX(headerbox), button, FALSE, FALSE, 0);
-  g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), "https:////www.deezer.com");
+  g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), webView);
 
 
   webkit_web_view_load_uri(webView, "https:////music.youtube.com");
