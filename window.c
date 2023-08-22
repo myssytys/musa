@@ -16,6 +16,19 @@ struct MemoryStruct {
 	size_t size;
 };
 
+WebKitWebView *webView;
+
+
+static void button_clicked_callback(GtkWidget *button, gpointer user_data) {
+    // Your code here
+	printf("%s clicked!", user_data);
+
+	const gchar *url = user_data;
+
+	webkit_web_view_load_uri(WEBKIT_WEB_VIEW(webView), "https:////spotify.com");
+
+}
+
 static void
 activate (GtkApplication* app,
           gpointer        user_data)
@@ -25,9 +38,11 @@ activate (GtkApplication* app,
   GtkWidget *button;
   GtkWidget *image;
 
+  webView = webkit_web_view_new();
+
   window = gtk_application_window_new (app);
-  gtk_window_set_title (GTK_WINDOW (window), "Youtube App");
-  gtk_window_set_default_size (GTK_WINDOW (window), 1024, 768);
+  gtk_window_set_title (GTK_WINDOW (window), "Music App");
+  gtk_window_set_default_size (GTK_WINDOW (window), 1600, 868);
 
   GtkWidget *mainbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   gtk_container_add(GTK_CONTAINER(window), mainbox);
@@ -35,47 +50,38 @@ activate (GtkApplication* app,
   GtkWidget *headerbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
   gtk_box_pack_start(GTK_BOX(mainbox), headerbox, FALSE, FALSE, 0);
 
-  WebKitWebView *webView = WEBKIT_WEB_VIEW(webkit_web_view_new());
   gtk_box_pack_start(GTK_BOX(mainbox), webView, TRUE, TRUE, 0);
 
 
   button = gtk_button_new_with_label("Spotify");
-  g_signal_connect(button, "clicked", NULL, NULL);
-  g_object_set_data(G_OBJECT(button), "Spotify", (gpointer)"https:////spotify.com");
+  g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), webView);
   gtk_box_pack_start(GTK_BOX(headerbox), button, FALSE, FALSE, 0);
   
   
   button = gtk_button_new_with_label("YouTube Music"); 
-  g_signal_connect(button, "clinked", NULL, NULL);
-  g_object_set_data(G_OBJECT(button), "Youtube Music", (gpointer)"https:////music.youtube.com");
+  g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), "https:////music.youtube.com");
   gtk_box_pack_start(GTK_BOX(headerbox), button, FALSE, FALSE, 0);
  
 
   button = gtk_button_new_with_label("SoundCloud");
-  g_signal_connect(button, "clicked", NULL, NULL);
-    g_object_set_data(G_OBJECT(button), "SoundCloud", (gpointer)"https:////music.youtube.com");
+  g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), "https:////soundcloud.com");
   gtk_box_pack_start(GTK_BOX(headerbox), button, FALSE, FALSE, 0);
 
 
   button = gtk_button_new_with_label("MixCloud");
-  g_signal_connect(button, "clicked", NULL, NULL);
-  g_object_set_data(G_OBJECT(button), "MixCloud", (gpointer)"https:////music.youtube.com");
+  g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), "https:////www.mixcloud.com");
   gtk_box_pack_start(GTK_BOX(headerbox), button, FALSE, FALSE, 0);
 
   button = gtk_button_new_with_label("Vimeo");
-  g_signal_connect(button, "clicked", NULL, NULL);
-  g_object_set_data(G_OBJECT(button), "Vimeo", (gpointer)"https:////music.youtube.com");
+  g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), "https:////vimeo.com");
   gtk_box_pack_start(GTK_BOX(headerbox), button, FALSE, FALSE, 0);
 
   button = gtk_button_new_with_label("Deezer");
-  g_signal_connect(button, "clicked", NULL, NULL);
-  g_object_set_data(G_OBJECT(button), "Deezer", (gpointer)"https:////music.youtube.com");
   gtk_box_pack_start(GTK_BOX(headerbox), button, FALSE, FALSE, 0);
-  
+  g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), "https:////www.deezer.com");
 
- // gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(webView));
 
-  webkit_web_view_load_uri(webView, "https:////www.youtube.com");
+  webkit_web_view_load_uri(webView, "https:////music.youtube.com");
 
   
 
@@ -148,8 +154,6 @@ main (int    argc,
 
   app = gtk_application_new ("org.gtk.example", G_APPLICATION_DEFAULT_FLAGS);
   g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
-  
-//  printf("%s\n", chunk.memory);
 
   status = g_application_run (G_APPLICATION (app), argc, argv);
 
