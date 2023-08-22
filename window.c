@@ -95,11 +95,6 @@ void traverse_dom_trees(xmlNode * a_node)
     }
 }
 
-static size_t write_callback(void *contents, size_t size, size_t nmemb, char *output) {
-    size_t total_size = size * nmemb;
-    strcat(output, (char *)contents);
-    return total_size;
-}
 
 static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
   size_t realsize = size * nmemb;
@@ -121,7 +116,7 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
 
 struct MemoryStruct chunk;
 
-CURLcode http_request(const char *url) {
+CURLcode http_request() {
 	CURL *curl;
 	CURLcode res;
 
@@ -162,18 +157,18 @@ main (int    argc,
     xmlNode *roo_element = NULL;
     CURLcode res;
 
+
+    http_request();
+
   doc = htmlReadMemory(chunk.memory, chunk.size, "noname.html", NULL, 0);
   if(doc != NULL) {
 	  xmlFreeDoc(doc);
   }
 
-
   GtkApplication *app;
 
   app = gtk_application_new ("org.gtk.example", G_APPLICATION_DEFAULT_FLAGS);
   g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
-  
-  res = http_request("https:\\\\www.youtube.com");
   
   printf("%s\n", chunk.memory);
 
