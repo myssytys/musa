@@ -9,12 +9,12 @@
 #include <netdb.h>
 #include <errno.h>
 #include <curl/curl.h>
-#include <tidy.h>
-#include <tidybuffio.h>
+#include <libxml/HTMLparser.h>
 
-#define PORT 80
-#define SERVER_PORT 80
-#define SERVER_ADDRESS "216.58.209.206"
+struct MemoryStruct {
+	char *memory;
+	size_t size;
+};
 
 static void
 activate (GtkApplication* app,
@@ -35,7 +35,7 @@ activate (GtkApplication* app,
   gtk_grid_set_column_spacing(GTK_GRID(grid), 10);
   
   gtk_window_set_child(GTK_WINDOW (window), grid);
-
+ 
   GtkCssProvider *cssProvider = gtk_css_provider_new();
   gtk_css_provider_load_from_file(cssProvider, g_file_new_for_path("styles.css"));
 
@@ -71,9 +71,28 @@ activate (GtkApplication* app,
 
   button = gtk_button_new_with_label("Deezer");
   g_signal_connect(button, "clicked", NULL, NULL);
-  gtk_grid_attach(GTK_GRID(grid), button, 8,0,1,1);
+  gtk_grid_attach(GTK_GRID(grid), button, 8,0,1,1);;
 
   gtk_widget_set_visible(window, 1);
+}
+
+void traverse_dom_trees(xmlNode * a_node)
+{
+    xmlNode *cur_node = NULL;
+
+    for (cur_node = a_node; cur_node; cur_node = cur_node->next)
+    {
+        if (cur_node->type == XML_TEXT_NODE)
+        {
+            printf("Node type: Text, content: %s\n", cur_node->content);
+        }
+        else if (cur_node->type == XML_ELEMENT_NODE)
+        {
+            printf("Node type: Element, name: %s\n", cur_node->name);
+        }
+
+        traverse_dom_trees(cur_node->children);
+    }
 }
 
 static size_t write_callback(void *contents, size_t size, size_t nmemb, char *output) {
@@ -82,35 +101,41 @@ static size_t write_callback(void *contents, size_t size, size_t nmemb, char *ou
     return total_size;
 }
 
-void http_request(const char *url) {
+static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
+  size_t realsize = size * nmemb;
+  struct MemoryStruct *mem = (struct MemoryStruct *)userp;
+
+  char *ptr = realloc(mem->memory, mem->size + realsize + 1);
+  if (!ptr) {
+    printf("Not enough memory (realloc returned NULL)\n");
+    return 0;
+  }
+
+  mem->memory = ptr;
+  memcpy(&(mem->memory[mem->size]), contents, realsize);
+  mem->size += realsize;
+  mem->memory[mem->size] = 0;
+
+  return realsize;
+}
+
+struct MemoryStruct chunk;
+
+CURLcode http_request(const char *url) {
 	CURL *curl;
 	CURLcode res;
-	char input[10000];
 
-	TidyBuffer output = {0};
-	TidyBuffer errbuf = {0};
-
-	int rc=1;
-	bool ok;
-
-	TidyDoc tdoc = tidyCreate();
-
-	ok = tidyOptSetBool(tdoc, TidyXhtmlOut, yes); // convert to xhtml
-						     
-       printf("%x", ok);	
+	chunk.memory = malloc(1);
+	chunk.size = 0;
+	
 	curl = curl_easy_init();
 	
 
 		curl_easy_setopt(curl, CURLOPT_DEFAULT_PROTOCOL, "https");
-               curl_easy_setopt(curl, CURLOPT_URL, "www.youtube.com");
+               curl_easy_setopt(curl, CURLOPT_URL, "open.spotify.com");
 
-
-/*		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, output);
-
-		curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
-
-		curl_easy_setopt(curl, CURLOPT_CA_CACHE_TIMEOUT, 604800L);*/
+	       curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+	       curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
 
 		// PERFORM THE HTTPS REQUEST
 		res = curl_easy_perform(curl);
@@ -123,31 +148,8 @@ void http_request(const char *url) {
 		      fprintf(stderr, "curl_easy_perform() failed: %s\n",
              		 curl_easy_strerror(res));
 
+		return res;
 		curl_easy_cleanup(curl);
-
-		printf("%s\n", input);
-
-		 ok = tidyOptSetBool(tdoc, TidyXhtmlOut, yes); // convert to xhtml
-
-        if(ok)
-                rc = tidySetErrorBuffer(tdoc, &errbuf);
-        if(rc >= 0)
-                rc = tidyParseString(tdoc, input);
-        
-	
-
-	
-	
-	if (rc >= 0)
-                rc = tidyCleanAndRepair( tdoc);
-        if ( rc >= 0)
-                rc = tidyRunDiagnostics( tdoc);
-
-	tidySaveBuffer(tdoc, &output);
-
-	printf("%s", output);	
-
-
 }
 
 int
@@ -156,41 +158,28 @@ main (int    argc,
 {
 
     int status, valread, client_fd;
-  /*  struct sockaddr_in serv_addr;
-    char* hello = "Hello from client";
-    char buffer[1024] = { 0 };
-    if ((client_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        printf("\n Socket creation error \n");
-        return -1;
-    }
+    htmlDocPtr doc;
+    xmlNode *roo_element = NULL;
+    CURLcode res;
 
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
+  doc = htmlReadMemory(chunk.memory, chunk.size, "noname.html", NULL, 0);
+  if(doc != NULL) {
+	  xmlFreeDoc(doc);
+  }
 
-    if (inet_pton(AF_INET, "192.168.198.138", &serv_addr.sin_addr)
-        <= 0) {
-        printf(
-            "\nInvalid address/ Address not supported \n");
-        return -1;
-    }
-
-     /*if ((status
-         = connect(client_fd, (struct sockaddr*)&serv_addr,
-                   sizeof(serv_addr)))
-        < 0) {
-        printf("\nConnection Failed \n");
-        return -1;
-    }^**/
-
- // http_get_request();
 
   GtkApplication *app;
 
   app = gtk_application_new ("org.gtk.example", G_APPLICATION_DEFAULT_FLAGS);
   g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
   
-  http_request("https:\\\\www.youtube.com");
+  res = http_request("https:\\\\www.youtube.com");
+  
+  printf("%s\n", chunk.memory);
+
   status = g_application_run (G_APPLICATION (app), argc, argv);
+ 
+  // printf("%s\n", res);
 
   g_object_unref (app);
 
