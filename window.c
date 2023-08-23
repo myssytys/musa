@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <curl/curl.h>
 #include <webkit2/webkit2.h>
+#include <glib.h>
 
 struct MemoryStruct {
 	char *memory;
@@ -18,15 +19,28 @@ struct MemoryStruct {
 
 WebKitWebView *webView;
 
+const gchar *url ="https:////spotify.com";
 
 static void button_clicked_callback(GtkWidget *button, gpointer user_data) {
     // Your code here
 	printf("%s clicked!", user_data);
 
-	const gchar *url = user_data;
+	url = user_data;
 
 	webkit_web_view_load_uri(WEBKIT_WEB_VIEW(webView), user_data);
 
+}
+
+static void got_cookies_cb (GObject *source_object, GAsyncResult *result, gpointer user_data) {
+    GList *cookies, *l;
+    cookies = webkit_cookie_manager_get_cookies_finish (WEBKIT_COOKIE_MANAGER(source_object), result, NULL);
+    for (l = cookies; l; l = l->next) {
+        SoupCookie *cookie = (SoupCookie *)l->data;
+        g_print("Cookie name: %s, value: %s\n", cookie->name, cookie->value);
+        soup_cookie_free(cookie);
+    }
+    g_list_free(cookies);
+    g_main_loop_quit((GMainLoop *)user_data);
 }
 
 static void
@@ -34,9 +48,7 @@ activate (GtkApplication* app,
           gpointer        user_data)
 {
   GtkWidget *window;
-  GtkWidget *grid;
   GtkWidget *button;
-  GtkWidget *image;
 
   webView = webkit_web_view_new();
 
@@ -83,14 +95,16 @@ activate (GtkApplication* app,
   gtk_box_pack_start(GTK_BOX(headerbox), button, FALSE, FALSE, 0);
   g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), "http:////www.deezer.com");
 
+  webkit_web_view_load_uri(webView, url);
 
-  webkit_web_view_load_uri(webView, "https:////music.youtube.com");
+  WebKitWebContext *context = webkit_web_context_get_default();
 
-  
+  WebKitCookieManager *cookie_manager = webkit_web_context_get_cookie_manager(context);
+
+   webkit_cookie_manager_get_cookies(cookie_manager, NULL, got_cookies_cb, NULL, NULL);
+
 
   gtk_widget_show_all(window);
-
-//  gtk_widget_set_visible(window, 1);
 }
 
 static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
