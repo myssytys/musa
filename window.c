@@ -71,17 +71,17 @@ activate (GtkApplication* app,
   g_object_set_data(G_OBJECT(button), "url", (gpointer)"https:////soundcloud.com");
 
 
-  button = gtk_button_new_with_label("MixCloud");
+/*  button = gtk_button_new_with_label("MixCloud");
   g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), "https:////www.mixcloud.com");
   gtk_box_pack_start(GTK_BOX(headerbox), button, FALSE, FALSE, 0);
-
+*/
   button = gtk_button_new_with_label("Vimeo");
   g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), "https:////vimeo.com");
   gtk_box_pack_start(GTK_BOX(headerbox), button, FALSE, FALSE, 0);
 
   button = gtk_button_new_with_label("Deezer");
   gtk_box_pack_start(GTK_BOX(headerbox), button, FALSE, FALSE, 0);
-  g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), webView);
+  g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), "http:////www.deezer.com");
 
 
   webkit_web_view_load_uri(webView, "https:////music.youtube.com");
