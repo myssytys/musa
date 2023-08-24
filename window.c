@@ -31,18 +31,6 @@ static void button_clicked_callback(GtkWidget *button, gpointer user_data) {
 
 }
 
-static void got_cookies_cb (GObject *source_object, GAsyncResult *result, gpointer user_data) {
-    GList *cookies, *l;
-    cookies = webkit_cookie_manager_get_cookies_finish (WEBKIT_COOKIE_MANAGER(source_object), result, NULL);
-    for (l = cookies; l; l = l->next) {
-        SoupCookie *cookie = (SoupCookie *)l->data;
-        g_print("Cookie name: %s, value: %s\n", cookie->name, cookie->value);
-        soup_cookie_free(cookie);
-    }
-    g_list_free(cookies);
-    g_main_loop_quit((GMainLoop *)user_data);
-}
-
 static void
 activate (GtkApplication* app,
           gpointer        user_data)
@@ -54,7 +42,7 @@ activate (GtkApplication* app,
 
   window = gtk_application_window_new (app);
   gtk_window_set_title (GTK_WINDOW (window), "Music App");
-  gtk_window_set_default_size (GTK_WINDOW (window), 1600, 868);
+  gtk_window_set_default_size (GTK_WINDOW (window), 1920, 1080);
 
   GtkWidget *mainbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   gtk_container_add(GTK_CONTAINER(window), mainbox);
@@ -97,12 +85,7 @@ activate (GtkApplication* app,
 
   webkit_web_view_load_uri(webView, url);
 
-  WebKitWebContext *context = webkit_web_context_get_default();
-
-  WebKitCookieManager *cookie_manager = webkit_web_context_get_cookie_manager(context);
-
-   webkit_cookie_manager_get_cookies(cookie_manager, NULL, got_cookies_cb, NULL, NULL);
-
+  WebKitWebContext *context = webkit_web_context_get_default();;
 
   gtk_widget_show_all(window);
 }
