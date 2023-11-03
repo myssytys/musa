@@ -1,13 +1,6 @@
 #include <gtk/gtk.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
 #include <stdio.h>
 #include <string.h>
-#include <netdb.h>
-#include <errno.h>
 #include <webkit2/webkit2.h>
 #include <libsoup/soup.h>
 #include <glib.h>
@@ -23,7 +16,7 @@ const gchar *url ="https:////spotify.com";
 
 static void button_clicked_callback(GtkWidget *button, gpointer user_data) {
     // Your code here
-	printf("%s clicked!", user_data);
+//	printf("%s clicked!", user_data);
 
 	url = user_data;
 
@@ -57,7 +50,7 @@ activate (GtkApplication* app,
   webView = webkit_web_view_new();
   
   window = gtk_application_window_new (app);
-  gtk_window_set_title (GTK_WINDOW (window), "Music App");
+  gtk_window_set_title (GTK_WINDOW (window), "MusicMix");
   gtk_window_set_default_size (GTK_WINDOW (window), 1920, 1080);
 
   GtkWidget *mainbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
@@ -105,9 +98,9 @@ activate (GtkApplication* app,
 
   initializeCookieManager(webView);
 
-  SoupMessage *msg;
+  //SoupMessage *msg;
 
-  msg = soup_message_new("POST", url);
+  //msg = soup_message_new("POST", url);
 
 
   gtk_widget_show_all(window);
