@@ -12,7 +12,7 @@ struct MemoryStruct {
 
 WebKitWebView *webView;
 
-const gchar *url ="https:////spotify.com";
+const gchar *url ="https:////music.youtube.com";
 
 static void button_clicked_callback(GtkWidget *button, gpointer user_data) {
     // Your code here
@@ -46,7 +46,7 @@ activate (GtkApplication* app,
 
 //  SoupCookieJar* cookieJar = soup_cookie_jar_text_new("cookies.txt",  0);
 
-  WebKitWebView* webView  = webkit_web_view_new();
+  webView  = webkit_web_view_new();
   
   window = gtk_application_window_new (app);
   gtk_window_set_title (GTK_WINDOW (window), "MusicMix");
@@ -67,6 +67,11 @@ activate (GtkApplication* app,
   g_object_set_data(G_OBJECT(button), "url", (gpointer)"http:////spotify.com");
   
   
+  button = gtk_button_new_with_label("YouTube");
+  g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), "https:////www.youtube.com");
+  gtk_box_pack_start(GTK_BOX(headerbox), button, FALSE, FALSE, 0);
+  g_object_set_data(G_OBJECT(button), "url", (gpointer)"https:////www.youtube.com");
+ 
   button = gtk_button_new_with_label("YouTube Music"); 
   g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), "https:////music.youtube.com");
   gtk_box_pack_start(GTK_BOX(headerbox), button, FALSE, FALSE, 0);
