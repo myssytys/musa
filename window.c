@@ -8,7 +8,6 @@
 #include <string.h>
 #include <netdb.h>
 #include <errno.h>
-#include <curl/curl.h>
 #include <webkit2/webkit2.h>
 #include <libsoup/soup.h>
 #include <glib.h>
