@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <curl/curl.h>
 #include <webkit2/webkit2.h>
+#include <libsoup/soup.h>
 #include <glib.h>
 
 struct MemoryStruct {
@@ -31,6 +32,19 @@ static void button_clicked_callback(GtkWidget *button, gpointer user_data) {
 
 }
 
+static void initializeCookieManager(WebKitWebView* webView) {
+    // Create a SoupCookieJar
+    SoupCookieJar* cookieJar = soup_cookie_jar_text_new("cookies.txt", 0);
+
+    // Set the cookie jar for the WebKit WebView
+    WebKitCookieManager* cookieManager = webkit_web_context_get_cookie_manager(webkit_web_view_get_context(webView));
+    webkit_cookie_manager_set_persistent_storage(cookieManager, "cookies.txt", WEBKIT_COOKIE_PERSISTENT_STORAGE_TEXT);
+    webkit_cookie_manager_set_accept_policy(cookieManager, WEBKIT_COOKIE_POLICY_ACCEPT_ALWAYS);
+}
+
+
+
+
 static void
 activate (GtkApplication* app,
           gpointer        user_data)
@@ -38,8 +52,11 @@ activate (GtkApplication* app,
   GtkWidget *window;
   GtkWidget *button;
 
-  webView = webkit_web_view_new();
+  SoupSession* session = soup_session_new();
+  SoupCookieJar* cookieJar = soup_cookie_jar_text_new("cookies.txt",  0);
 
+  webView = webkit_web_view_new();
+  
   window = gtk_application_window_new (app);
   gtk_window_set_title (GTK_WINDOW (window), "Music App");
   gtk_window_set_default_size (GTK_WINDOW (window), 1920, 1080);
@@ -85,59 +102,16 @@ activate (GtkApplication* app,
 
   webkit_web_view_load_uri(webView, url);
 
-  WebKitWebContext *context = webkit_web_context_get_default();;
+  WebKitWebContext *context = webkit_web_context_get_default();
+
+  initializeCookieManager(webView);
+
+  SoupMessage *msg;
+
+  msg = soup_message_new("POST", url);
+
 
   gtk_widget_show_all(window);
-}
-
-static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
-  size_t realsize = size * nmemb;
-  struct MemoryStruct *mem = (struct MemoryStruct *)userp;
-
-  char *ptr = realloc(mem->memory, mem->size + realsize + 1);
-  if (!ptr) {
-    printf("Not enough memory (realloc returned NULL)\n");
-    return 0;
-  }
-
-  mem->memory = ptr;
-  memcpy(&(mem->memory[mem->size]), contents, realsize);
-  mem->size += realsize;
-  mem->memory[mem->size] = 0;
-
-  return realsize;
-}
-
-struct MemoryStruct chunk;
-
-void http_request() {
-	CURL *curl;
-	CURLcode res;
-
-	chunk.memory = malloc(1);
-	chunk.size = 0;
-	
-	curl = curl_easy_init();
-	
-
-		curl_easy_setopt(curl, CURLOPT_DEFAULT_PROTOCOL, "https");
-               curl_easy_setopt(curl, CURLOPT_URL, "soundcloud.com");
-
-	       curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
-	       curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
-
-		// PERFORM THE HTTPS REQUEST
-		res = curl_easy_perform(curl);
-
-		if(res != CURLE_OK) {
-			printf("curl failed!\n");
-		}
-
-		if(res != CURLE_OK)
-		      fprintf(stderr, "curl_easy_perform() failed: %s\n",
-             		 curl_easy_strerror(res));
-
-		curl_easy_cleanup(curl);
 }
 
 int
