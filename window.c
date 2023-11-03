@@ -26,7 +26,7 @@ static void button_clicked_callback(GtkWidget *button, gpointer user_data) {
 
 static void initializeCookieManager(WebKitWebView* webView) {
     // Create a SoupCookieJar
-    SoupCookieJar* cookieJar = soup_cookie_jar_text_new("cookies.txt", 0);
+    //SoupCookieJar* cookieJar = soup_cookie_jar_text_new("cookies.txt", 0);
 
     // Set the cookie jar for the WebKit WebView
     WebKitCookieManager* cookieManager = webkit_web_context_get_cookie_manager(webkit_web_view_get_context(webView));
@@ -44,10 +44,9 @@ activate (GtkApplication* app,
   GtkWidget *window;
   GtkWidget *button;
 
-  SoupSession* session = soup_session_new();
-  SoupCookieJar* cookieJar = soup_cookie_jar_text_new("cookies.txt",  0);
+//  SoupCookieJar* cookieJar = soup_cookie_jar_text_new("cookies.txt",  0);
 
-  webView = webkit_web_view_new();
+  WebKitWebView* webView  = webkit_web_view_new();
   
   window = gtk_application_window_new (app);
   gtk_window_set_title (GTK_WINDOW (window), "MusicMix");
@@ -92,9 +91,7 @@ activate (GtkApplication* app,
   gtk_box_pack_start(GTK_BOX(headerbox), button, FALSE, FALSE, 0);
   g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), "http:////www.deezer.com");
 
-  webkit_web_view_load_uri(webView, url);
-
-  WebKitWebContext *context = webkit_web_context_get_default();
+  webkit_web_view_load_uri(webView, url);;
 
   initializeCookieManager(webView);
 
@@ -111,10 +108,7 @@ main (int    argc,
       char **argv)
 {
 
-    int status, valread, client_fd;
-
-//    http_request();
-
+    int status;
 
   GtkApplication *app;
 
