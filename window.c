@@ -3,7 +3,7 @@
 #include <string.h>
 #include <webkit2/webkit2.h>
 #include <libsoup/soup.h>
-#include <glib.h>
+//#include <glib.h>
 
 struct MemoryStruct {
 	char *memory;
@@ -64,7 +64,7 @@ activate (GtkApplication* app,
   button = gtk_button_new_with_label("Spotify");
   g_signal_connect(button, "clicked", G_CALLBACK(button_clicked_callback), "https:////spotify.com");
   gtk_box_pack_start(GTK_BOX(headerbox), button, FALSE, FALSE, 0);
-  g_object_set_data(G_OBJECT(button), "url", (gpointer)"http:////spotify.com");
+  g_object_set_data(G_OBJECT(button), "url", (gpointer)"https:////spotify.com");
   
   
   button = gtk_button_new_with_label("YouTube");
