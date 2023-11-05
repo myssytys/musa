@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=MusicMix
+Comment=Web Musical Player
+Exec=/usr/bin/musicmix
+Icon=/usr/share/icons/musicmix.gif
+Terminal=false
+Type=Application
+Categories=Game;

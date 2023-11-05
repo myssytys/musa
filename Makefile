@@ -4,6 +4,6 @@ run: window.o
 	gcc -L/usr/lib/ -L/usr/lib64/ -lwebkit2gtk-4.1 -lsoup-3.0 -lgtk-3 -lgio-2.0 -lgobject-2.0 -lglib-2.0 -o musicmix window.o 
 install: install
 	cp ./musicmix /usr/bin/.
-	cp ./musicmix_icon_666.gif /usr/share/icons/.
+	cp ./musicmix.gif /usr/share/icons/.
 	cp ./musicmix.desktop /usr/share/applications/.
 
