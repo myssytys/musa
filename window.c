@@ -1,7 +1,7 @@
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>
-#include <webkit2/webkit2.h>
+#include <webkit/webkit.h>
 #include <libsoup/soup.h>
 //#include <glib.h>
 
@@ -10,7 +10,9 @@ struct MemoryStruct {
 	size_t size;
 };
 
-WebKitWebView *webView;
+WebKitWebView* webView;
+
+WebKitWebsiteDataManager* wDataMng;
 
 const gchar *url ="https:////music.youtube.com";
 
@@ -28,8 +30,13 @@ static void initializeCookieManager(WebKitWebView* webView) {
     // Create a SoupCookieJar
     //SoupCookieJar* cookieJar = soup_cookie_jar_text_new("cookies.txt", 0);
 
+
+    wDataMng = webkit_website_data_manager_clear();
+
+    wDataMng = webkit_website_data_manager_new();
+    
     // Set the cookie jar for the WebKit WebView
-    WebKitCookieManager* cookieManager = webkit_web_context_get_cookie_manager(webkit_web_view_get_context(webView));
+    WebKitCookieManager* cookieManager = webkit_website_data_manager_get_cookie_manager(wDataMng);
     webkit_cookie_manager_set_persistent_storage(cookieManager, "cookies.txt", WEBKIT_COOKIE_PERSISTENT_STORAGE_TEXT);
     webkit_cookie_manager_set_accept_policy(cookieManager, WEBKIT_COOKIE_POLICY_ACCEPT_ALWAYS);
 }
@@ -46,7 +53,7 @@ activate (GtkApplication* app,
 
 //  SoupCookieJar* cookieJar = soup_cookie_jar_text_new("cookies.txt",  0);
 
-  webView  = webkit_web_view_new();
+  webView  = (WebKitWebView*)webkit_web_view_new();
   
   window = gtk_application_window_new (app);
   gtk_window_set_title (GTK_WINDOW (window), "MusicMix");
@@ -58,7 +65,7 @@ activate (GtkApplication* app,
   GtkWidget *headerbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
   gtk_box_pack_start(GTK_BOX(mainbox), headerbox, FALSE, FALSE, 0);
 
-  gtk_box_pack_start(GTK_BOX(mainbox), webView, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(mainbox), (GtkWidget*)webView, TRUE, TRUE, 0);
 
 
   button = gtk_button_new_with_label("Spotify");
