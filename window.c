@@ -31,12 +31,10 @@ static void initializeCookieManager(WebKitWebView* webView) {
     //SoupCookieJar* cookieJar = soup_cookie_jar_text_new("cookies.txt", 0);
 
 
-    wDataMng = webkit_website_data_manager_clear();
-
-    wDataMng = webkit_website_data_manager_new();
+    wDataMng* = webkit_website_data_manager_new("base-data-directory", webkit_website_data_manager_get_base_data_directory(&wDataMng), "base-cache-directory",webkit_website_data_manager_get_base_cache_directory(&wDataMng), "local-storage-directory", webkit_website_data_manager_get_local_storage_directory(&wDataMng), "offline-application-cache-directory", webkit_website_data_manager_get_offline_application_cache_directory(&wDataMng), "indexddb_directory", webkit_website_data_manager_get_indexeddb_directory(&wDataMng), "websql-directory", webkit_website_data_manager_get_websql_directory(&wDataMng) );
     
     // Set the cookie jar for the WebKit WebView
-    WebKitCookieManager* cookieManager = webkit_website_data_manager_get_cookie_manager(wDataMng);
+    WebKitCookieManager* cookieManager = webkit_website_data_manager_get_cookie_manager();
     webkit_cookie_manager_set_persistent_storage(cookieManager, "cookies.txt", WEBKIT_COOKIE_PERSISTENT_STORAGE_TEXT);
     webkit_cookie_manager_set_accept_policy(cookieManager, WEBKIT_COOKIE_POLICY_ACCEPT_ALWAYS);
 }
