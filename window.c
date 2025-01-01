@@ -59,21 +59,19 @@ activate (GtkApplication* app,
   gtk_window_set_title (GTK_WINDOW (window), "MusicMix");
   gtk_window_set_default_size (GTK_WINDOW (window), 1920, 1080);
 
-  GtkWidget *mainbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-  gtk_window_set_child(GTK_WINDOW(window), mainbox);
+  GtkWidget *mainbox = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
 //  gtk_container_add(GTK_CONTAINER(window), mainbox);
+//
+  gtk_window_set_child(GTK_WINDOW(window), mainbox);
 
-  GtkWidget *headerbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+  GtkWidget *headerbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+
+  gtk_paned_set_start_child(GTK_PANED(mainbox), headerbox);
 //  gtk_box_pack_start(GTK_BOX(mainbox), headerbox, FALSE, FALSE, 0);
 
 //  gtk_box_pack_start(GTK_BOX(mainbox), (GtkWidget*)webView, TRUE, TRUE, 
-  
-    GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
-    gtk_widget_set_margin_top(vbox, 10);
-    gtk_widget_set_margin_bottom(vbox, 10);
-    gtk_widget_set_margin_start(vbox, 10);
-    gtk_widget_set_margin_end(vbox, 10);
-    gtk_window_set_child(GTK_WINDOW(window), headerbox);
+  ;
+//    gtk_window_set_child(GTK_WINDOW(window), headerbox);
 
     // Create buttons
     GtkWidget *button1 = gtk_button_new_with_label("Button 1");
@@ -84,7 +82,15 @@ activate (GtkApplication* app,
     g_signal_connect(button2, "clicked", G_CALLBACK(on_button_clicked), "Button 2");
     gtk_box_append(GTK_BOX(headerbox), button2);
 
-    gtk_window_set_child(GTK_WINDOW(window), webView);
+    GtkWidget *button3 = gtk_button_new_with_label("Button 3");
+    g_signal_connect(button2, "clicked",G_CALLBACK(on_button_clicked), "Button 3");
+    gtk_box_append(GTK_BOX(headerbox), button3);
+
+    GtkWidget *button4 = gtk_button_new_with_label("Button 4");
+    g_signal_connect(button4, "clicked", G_CALLBACK(on_button_clicked), "Button 4");
+    gtk_box_append(GTK_BOX(headerbox), button4);
+
+    gtk_paned_set_end_child(GTK_PANED(mainbox), webView);
 
     // Show the window
     gtk_window_present(GTK_WINDOW(window));
