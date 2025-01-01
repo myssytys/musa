@@ -18,7 +18,7 @@ const gchar *url ="https:////music.youtube.com";
 
 static void on_button_clicked(GtkWidget *button, gpointer user_data) {
     // Your code here
-//	printf("%s clicked!", user_data);
+	printf("%s clicked!", user_data);
 
 	url = user_data;
 
@@ -29,16 +29,16 @@ static void on_button_clicked(GtkWidget *button, gpointer user_data) {
 /*static void initializeCookieManager(WebKitWebView* webView) {
     // Create a SoupCookieJar
     //SoupCookieJar* cookieJar = soup_cookie_jar_text_new("cookies.txt", 0);
-    gchar* cachePath = nullptr;
-    gchar* dataPath = nullptr;
+    gchar* cachePath = NULL;
+    gchar* dataPath = NULL;
 
     WebKitWebsiteDataManager* data_manager = webkit_website_data_manager_new(
                 "base-cache-directory", cachePath,
                 "base-data-directory", dataPath,
-                nullptr);
+                NULL);
     
     // Set the cookie jar for the WebKit WebView
-    WebKitCookieManager* cookieManager = webkit_website_data_manager_get_cookie_manager();
+    WebKitCookieManager* cookieManager = (WebKitCookieManager*)webkit_website_data_manager_get_cookie_manager(data_manager);
     webkit_cookie_manager_set_persistent_storage(cookieManager, "cookies.txt", WEBKIT_COOKIE_PERSISTENT_STORAGE_TEXT);
     webkit_cookie_manager_set_accept_policy(cookieManager, WEBKIT_COOKIE_POLICY_ACCEPT_ALWAYS);
 }
@@ -51,15 +51,16 @@ activate (GtkApplication* app,
   GtkWidget *window;
   GtkWidget *button;
 
-//  SoupCookieJar* cookieJar = soup_cookie_jar_text_new("cookies.txt",  0);
+  GtkWidget *webView = webkit_web_view_new();
 
-  webView  = (WebKitWebView*)webkit_web_view_new();
+//  SoupCookieJar* cookieJar = soup_cookie_jar_text_new("cookies.txt",  0);
   
   window = gtk_application_window_new (app);
   gtk_window_set_title (GTK_WINDOW (window), "MusicMix");
   gtk_window_set_default_size (GTK_WINDOW (window), 1920, 1080);
 
   GtkWidget *mainbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+  gtk_window_set_child(GTK_WINDOW(window), mainbox);
 //  gtk_container_add(GTK_CONTAINER(window), mainbox);
 
   GtkWidget *headerbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
@@ -72,27 +73,29 @@ activate (GtkApplication* app,
     gtk_widget_set_margin_bottom(vbox, 10);
     gtk_widget_set_margin_start(vbox, 10);
     gtk_widget_set_margin_end(vbox, 10);
-    gtk_window_set_child(GTK_WINDOW(window), vbox);
+    gtk_window_set_child(GTK_WINDOW(window), headerbox);
 
     // Create buttons
     GtkWidget *button1 = gtk_button_new_with_label("Button 1");
-    g_signal_connect(button1, "clicked", G_CALLBACK(on_button_clicked), "Button 1");
-    gtk_box_append(GTK_BOX(vbox), button1);
+    g_signal_connect(button1, "clicked", G_CALLBACK(on_button_clicked), (gpointer)(url));
+    gtk_box_append(GTK_BOX(headerbox), button1);
 
     GtkWidget *button2 = gtk_button_new_with_label("Button 2");
     g_signal_connect(button2, "clicked", G_CALLBACK(on_button_clicked), "Button 2");
-    gtk_box_append(GTK_BOX(vbox), button2);
+    gtk_box_append(GTK_BOX(headerbox), button2);
+
+    gtk_window_set_child(GTK_WINDOW(window), webView);
 
     // Show the window
     gtk_window_present(GTK_WINDOW(window));
 
 
 
-  webkit_web_view_load_uri(webView, url);;
+  webkit_web_view_load_uri(WEBKIT_WEB_VIEW(webView), url);;
 
 //  initializeCookieManager(webView);
 
- // gtk_widget_show_all(window);
+  gtk_window_present (GTK_WINDOW (window));
 }
 
 int
