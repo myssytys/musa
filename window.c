@@ -10,7 +10,7 @@ struct MemoryStruct {
 	size_t size;
 };
 
-WebKitWebView* webView;
+GtkWidget* webView;
 
 //WebKitWebsiteDataManager* wDataMng;
 
@@ -51,7 +51,7 @@ activate (GtkApplication* app,
   GtkWidget *window;
   GtkWidget *button;
 
-  GtkWidget *webView = webkit_web_view_new();
+  webView = webkit_web_view_new();
 
 //  SoupCookieJar* cookieJar = soup_cookie_jar_text_new("cookies.txt",  0);
   
@@ -59,18 +59,20 @@ activate (GtkApplication* app,
   gtk_window_set_title (GTK_WINDOW (window), "MusicMix");
   gtk_window_set_default_size (GTK_WINDOW (window), 1920, 1080);
 
-  GtkWidget *mainbox = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
+//  GtkWidget *mainbox = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
+  GtkWidget *mainbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 //  gtk_container_add(GTK_CONTAINER(window), mainbox);
 //
-  gtk_window_set_child(GTK_WINDOW(window), mainbox);
+//  gtk_window_set_child(GTK_WINDOW(window), mainbox);
 
   GtkWidget *headerbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 
-  gtk_paned_set_start_child(GTK_PANED(mainbox), headerbox);
+  gtk_box_append(GTK_BOX(mainbox), headerbox);
+//  gtk_paned_set_start_child(GTK_PANED(mainbox), headerbox);
 //  gtk_box_pack_start(GTK_BOX(mainbox), headerbox, FALSE, FALSE, 0);
 
 //  gtk_box_pack_start(GTK_BOX(mainbox), (GtkWidget*)webView, TRUE, TRUE, 
-  ;
+  
 //    gtk_window_set_child(GTK_WINDOW(window), headerbox);
 
     // Create buttons
@@ -90,7 +92,11 @@ activate (GtkApplication* app,
     g_signal_connect(button4, "clicked", G_CALLBACK(on_button_clicked), "Button 4");
     gtk_box_append(GTK_BOX(headerbox), button4);
 
-    gtk_paned_set_end_child(GTK_PANED(mainbox), webView);
+    gtk_box_append(GTK_BOX(mainbox), webView);
+
+//    gtk_paned_set_end_child(GTK_PANED(mainbox), webView);
+
+//    gtk_window_set_child(GTK_WINDOW(window), webView);
 
     // Show the window
     gtk_window_present(GTK_WINDOW(window));
